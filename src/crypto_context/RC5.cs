@@ -3,7 +3,7 @@ namespace crypto_context;
 public sealed class Rc5 : ISymmetricCipher
 {
     private const decimal E = 2.7182818284590452353602874714m;
-    private const decimal Phi = 1.6180339887498948482045868344m;
+    private const decimal PHI = 1.6180339887498948482045868344m;
 
     private readonly int _w;
     private readonly int _r;
@@ -12,17 +12,17 @@ public sealed class Rc5 : ISymmetricCipher
     private readonly ulong _q;
     private ulong[] _s = [];
 
-    public Rc5(int wordSize = 32, int rounds = 12)
+    public Rc5(int word_size = 32, int rounds = 12)
     {
-        if (wordSize is not (16 or 32 or 64)) { throw new ArgumentOutOfRangeException(nameof(wordSize), wordSize, "w = 16, 32 или 64"); }
+        if (word_size is not (16 or 32 or 64)) { throw new ArgumentOutOfRangeException(nameof(word_size), word_size, "_w = 16, 32 или 64"); }
 
-        if (rounds is < 0 or > 255) { throw new ArgumentOutOfRangeException(nameof(rounds), rounds, "r = 0...255"); }
+        if (rounds is < 0 or > 255) { throw new ArgumentOutOfRangeException(nameof(rounds), rounds, "_r = 0...255"); }
 
-        _w = wordSize;
+        _w = word_size;
         _r = rounds;
-        _mask = wordSize == 64 ? ulong.MaxValue : (1UL << wordSize) - 1;
+        _mask = word_size == 64 ? ulong.MaxValue : (1UL << word_size) - 1;
         _p = Odd(E - 2);
-        _q = Odd(Phi - 1);
+        _q = Odd(PHI - 1);
     }
 
     public int BlockSize => _w / 4;
@@ -41,22 +41,22 @@ public sealed class Rc5 : ISymmetricCipher
         }
 
         int t = 2 * (_r + 1);
-        var s = new ulong[t];
-        s[0] = _p;
+        var _s = new ulong[t];
+        _s[0] = _p;
 
         for (int i = 1; i < t; i++)
         {
-            s[i] = (s[i - 1] + _q) & _mask;            
+            _s[i] = (_s[i - 1] + _q) & _mask;            
         }
 
         ulong a = 0, b = 0;
         for (int k = 0, i = 0, j = 0; k < 3 * Math.Max(t, c); k++, i = (i + 1) % t, j = (j + 1) % c)
         {
-            a = s[i] = RotateLeft((s[i] + a + b) & _mask, 3);
+            a = _s[i] = RotateLeft((_s[i] + a + b) & _mask, 3);
             b = l[j] = RotateLeft((l[j] + a + b) & _mask, a + b);
         }
 
-        _s = s;
+        this._s = _s;
     }
 
     public byte[] Encrypt(byte[] block)

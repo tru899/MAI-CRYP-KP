@@ -10,3 +10,13 @@ public interface ISymmetricCipher
 
     byte[] Decrypt(byte[] block);
 }
+
+public interface IKeyExpansion
+{
+    byte[][] GenerateRoundKeys(byte[] key);
+}
+
+public interface ICipherTransform
+{
+    byte[] Transform(byte[] block, byte[] roundKey);
+}
